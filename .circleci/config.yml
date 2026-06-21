@@ -3,14 +3,13 @@ jobs:
   build:
     docker:
       - image: cimg/openjdk:17.0
-    environment:
-      JAVA_TOOL_OPTIONS: 
-      GRADLE_OPTS: 
     steps:
       - checkout
       - run:
           name: Dar permissão e rodar
           command: |
+            unset JAVA_TOOL_OPTIONS
+            unset GRADLE_OPTS
             chmod +x ./gradlew
             ./gradlew check
 workflows:

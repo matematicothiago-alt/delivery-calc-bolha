@@ -5,13 +5,9 @@ jobs:
       - image: cimg/openjdk:17.0
     steps:
       - checkout
-      - run:
-          name: Dar permissão e rodar
-          command: |
-            unset JAVA_TOOL_OPTIONS
-            unset GRADLE_OPTS
-            chmod +x ./gradlew
-            ./gradlew check
+      - run: unset JAVA_TOOL_OPTIONS && unset GRADLE_OPTS && unset _JAVA_OPTIONS
+      - run: chmod +x ./gradlew
+      - run: ./gradlew check --no-daemon
 workflows:
   build:
     jobs:

@@ -5,11 +5,8 @@ jobs:
       - image: cimg/openjdk:17.0
     steps:
       - checkout
-      - run:
-          name: Dar permissão e rodar
-          command: |
-            chmod +x ./gradlew
-            ./gradlew check
+      - run: chmod +x gradlew
+      - run: ./gradlew check
 workflows:
   build:
     jobs:

@@ -1,5 +1,4 @@
 version: 2.1
-
 jobs:
   build:
     docker:
@@ -8,14 +7,8 @@ jobs:
       ANDROID_HOME: /opt/android/sdk
     steps:
       - checkout
-      - run:
-          name: Dar permissão pro gradlew
-          command: chmod +x gradlew
-      - run:
-          name: Build Debug APK
-          command: ./gradlew assembleDebug --no-daemon --stacktrace -x lint
-
+      - run: gradle assembleDebug --no-daemon -x lint
 workflows:
-  build-workflow:
+  build:
     jobs:
       - build

@@ -5,9 +5,8 @@ jobs:
       - image: cimg/openjdk:17.0
     steps:
       - checkout
-      - run: unset JAVA_TOOL_OPTIONS && unset GRADLE_OPTS && unset _JAVA_OPTIONS
-      - run: chmod +x ./gradlew
-      - run: ./gradlew check --no-daemon
+      - run: chmod +x gradlew
+      - run: ./gradlew check
 workflows:
   build:
     jobs:

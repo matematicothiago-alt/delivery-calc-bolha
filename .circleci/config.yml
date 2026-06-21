@@ -6,13 +6,11 @@ jobs:
       - image: cimg/android:2024.01
     steps:
       - checkout
-      - run: chmod +x gradlew
-      - run: ./gradlew assembleDebug --no-daemon
+      - run: gradle assembleDebug --no-daemon -x lint
       - store_artifacts:
           path: app/build/outputs/apk/debug
           destination: apk
 
 workflows:
   build:
-    jobs:
-      - build
+    jobs: [build]

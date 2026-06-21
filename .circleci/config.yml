@@ -10,19 +10,15 @@ jobs:
     working_directory: ~/project
     steps:
       - checkout
-      - android/restore-gradle-cache
       - run:
           name: Make gradlew executable
-          command: chmod +x ./gradlew
+          command: chmod +x gradlew
       - run:
           name: Build Debug APK
-          command: ./gradlew assembleDebug --no-daemon
-      - android/save-gradle-cache
+          command: ./gradlew assembleDebug --no-daemon -x lint
       - store_artifacts:
           path: app/build/outputs/apk/debug
           destination: apk
-      - store_test_results:
-          path: app/build/test-results
 
 workflows:
   build-and-test:

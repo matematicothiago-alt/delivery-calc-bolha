@@ -1,0 +1,16 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - checkout
+      - run:
+          name: Dar permissão e rodar
+          command: |
+            chmod +x ./gradlew
+            ./gradlew check
+workflows:
+  build:
+    jobs:
+      - build

@@ -15,7 +15,26 @@ android {
         versionName = "1.0"
     }
 
-    buildFeatures { viewBinding = true }
+    buildFeatures { 
+        viewBinding = true 
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+    }
+
+    // ESSA PARTE RESOLVE O ERRO DO JVM 17:
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 }
 
 dependencies {

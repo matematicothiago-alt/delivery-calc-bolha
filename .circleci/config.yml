@@ -4,7 +4,8 @@ jobs:
     docker:
       - image: cimg/openjdk:17.0
     environment:
-      JAVA_TOOL_OPTIONS: ""  # anula os 64m da imagem
+      JAVA_TOOL_OPTIONS: 
+      GRADLE_OPTS: 
     steps:
       - checkout
       - run:

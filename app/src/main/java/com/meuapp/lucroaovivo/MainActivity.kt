@@ -2,29 +2,38 @@ package com.meuapp.lucroaovivo
 
 import android.content.Intent
 import android.os.Bundle
-import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
-import com.meuapp.lucroaovivo.databinding.ActivityMainBinding
+import android.widget.Button
+import android.widget.EditText
+import android.provider.Settings
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var b: ActivityMainBinding
-    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        b = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(b.root)
+        setContentView(R.layout.activity_main)
         
-        val sp = getSharedPreferences("cfg", MODE_PRIVATE)
-        b.etCusto.setText(sp.getString("custo", "1.20"))
-        b.etVelocidade.setText(sp.getString("vel", "60"))
+        val etValor = findViewById<EditText>(R.id.etValor)
+        val etKmAteCliente = findViewById<EditText>(R.id.etKmAteCliente)
+        val btnAtivar = findViewById<Button>(R.id.btnAtivarBolha)
+        val btnAcessibilidade = findViewById<Button>(R.id.btnAcessibilidade)
         
-        b.btnAtivar.setOnClickListener {
-            sp.edit().putString("custo", b.etCusto.text.toString())
-                .putString("vel", b.etVelocidade.text.toString()).apply()
-            startService(Intent(this, OverlayService::class.java))
+        // Botão 1: Ativar a bolha com cálculo
+        btnAtivar.setOnClickListener {
+            val valor = etValor.text.toString().toDoubleOrNull() ?: 0.0
+            val kmAteCliente = etKmAteCliente.text.toString().toDoubleOrNull() ?: 0.0
+            
+            // Km da corrida vai vir do AppAccessibilityService
+            // Por enquanto manda 0, o service atualiza depois
+            val corrida = Corrida(valor, 0.0, kmAteCliente)
+            val lucro = corrida.calcularLucro()
+            
+            val intent = Intent(this, OverlayService::class.java)
+            intent.putExtra("lucro", lucro)
+            startForegroundService(intent)
         }
         
-        b.btnAcessibilidade.setOnClickListener {
+        // Botão 2: Abrir tela de acessibilidade
+        btnAcessibilidade.setOnClickListener {
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }
     }

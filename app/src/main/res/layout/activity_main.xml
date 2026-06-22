@@ -1,7 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp">
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical" android:padding="16dp" android:layout_width="match_parent" android:layout_height="match_parent">
-<EditText android:id="@+id/etCusto" android:layout_width="match_parent" android:layout_height="wrap_content"/>
-<EditText android:id="@+id/etVelocidade" android:layout_width="match_parent" android:layout_height="wrap_content"/>
-<Button android:id="@+id/btnAtivar" android:text="Ativar Overlay" android:layout_width="match_parent" android:layout_height="wrap_content"/>
-<Button android:id="@+id/btnAcessibilidade" android:text="Config Acessibilidade" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    <EditText
+        android:id="@+id/etCusto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Custo por km R$"
+        android:inputType="numberDecimal"/>
+
+    <EditText
+        android:id="@+id/etVelocidade"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Velocidade média km/h"
+        android:inputType="numberDecimal"
+        android:layout_marginTop="8dp"/>
+
+    <Button
+        android:id="@+id/btnAtivar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ativar Bolha"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/btnAcessibilidade"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Abrir Acessibilidade"
+        android:layout_marginTop="8dp"/>
 </LinearLayout>

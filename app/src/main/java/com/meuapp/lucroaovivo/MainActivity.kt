@@ -3,38 +3,26 @@ package com.meuapp.lucroaovivo
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import android.widget.Button
-import android.widget.EditText
-import android.provider.Settings
+import com.meuapp.lucroaovivo.R
+import android.widget.*
+
+data class Corrida(val valor: Double, val km: Double) // <- adiciona isso
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        
+
         val etValor = findViewById<EditText>(R.id.etValor)
-        val etKmAteCliente = findViewById<EditText>(R.id.etKmAteCliente)
-        val btnAtivar = findViewById<Button>(R.id.btnAtivarBolha)
-        val btnAcessibilidade = findViewById<Button>(R.id.btnAcessibilidade)
-        
-        // Botão 1: Ativar a bolha com cálculo
-        btnAtivar.setOnClickListener {
+        val btnBolha = findViewById<Button>(R.id.btnAtivarBolha)
+
+        btnBolha.setOnClickListener {
             val valor = etValor.text.toString().toDoubleOrNull() ?: 0.0
-            val kmAteCliente = etKmAteCliente.text.toString().toDoubleOrNull() ?: 0.0
+            val corrida = Corrida(valor, 0.0) // <- linha 27 ok agora
             
-            // Km da corrida vai vir do AppAccessibilityService
-            // Por enquanto manda 0, o service atualiza depois
-            val corrida = Corrida(valor, 0.0, kmAteCliente)
-            val lucro = corrida.calcularLucro()
-            
-            val intent = Intent(this, OverlayService::class.java)
-            intent.putExtra("lucro", lucro)
-            startForegroundService(intent)
-        }
-        
-        // Botão 2: Abrir tela de acessibilidade
-        btnAcessibilidade.setOnClickListener {
-            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("valor", corrida.valor.toString()) // <- linha 31 força String
+            startActivity(intent)
         }
     }
 }

@@ -1,93 +1,79 @@
 package com.meuapp.lucroaovivo
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.text.InputType
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import android.widget.Button
 import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
+    
+    private lateinit var etValor: EditText
+    private lateinit var etKm: EditText
+    private lateinit var btnCalcular: Button
+    private val OVERLAY_PERMISSION_REQUEST_CODE = 1234
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(64, 64, 64, 64)
-        }
-        
-        val tvTitulo = TextView(this).apply { 
-            text = "LucroAoVivo - Entregas"
-            textSize = 24f
-            setPadding(0, 0, 0, 32)
-        }
-        
-        val etValor = EditText(this).apply { 
-            hint = "Valor da entrega R$"
-            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-        }
-        val etKmAteEstabelecimento = EditText(this).apply { 
-            hint = "Km: você até o estabelecimento"
-            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-        }
-        val etKmAteCliente = EditText(this).apply { 
-            hint = "Km: estabelecimento até cliente"
-            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-        }
-        val btn = Button(this).apply { text = "ATIVAR BOLHA" }
-        
-        layout.addView(tvTitulo)
-        layout.addView(etValor)
-        layout.addView(etKmAteEstabelecimento)
-        layout.addView(etKmAteCliente)
-        layout.addView(btn)
-        setContentView(layout)
-        
-        if (Build.VERSION.SDK_INT >= 33) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
-            }
-        }
-        
-        btn.setOnClickListener {
-            if (!Settings.canDrawOverlays(this)) {
-                Toast.makeText(this, "Libera permissão de overlay primeiro", Toast.LENGTH_LONG).show()
-                startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")))
-                return@setOnClickListener
-            }
-            
-            val valor = etValor.text.toString().toDoubleOrNull() ?: 0.0
-            val kmAteEstabelecimento = etKmAteEstabelecimento.text.toString().toDoubleOrNull() ?: 0.0
-            val kmAteCliente = etKmAteCliente.text.toString().toDoubleOrNull() ?: 0.0
-            
-            if (valor == 0.0) {
-                Toast.makeText(this, "Preenche o valor da entrega", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            
-            val custoKm = 0.35 // muda teu custo por km aqui
-            val kmTotal = kmAteEstabelecimento + kmAteCliente
-            val lucro = valor - (kmTotal * custoKm)
-            val deuLucro = lucro >= 0
-            
-            val intent = Intent(this, OverlayService::class.java)
-            intent.putExtra("lucro", "${"%.2f".format(lucro)}")
-            intent.putExtra("deuLucro", deuLucro)
-            
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(intent)
+        setContentView(R.layout.activity_main)
+
+        etValor = findViewById(R.id.etValor)
+        etKm = findViewById(R.id.etKm)
+        btnCalcular = findViewById(R.id.btnCalcular)
+
+        btnCalcular.setOnClickListener {
+            if (checkOverlayPermission()) {
+                mostrarBolha()
             } else {
-                startService(intent)
+                requestOverlayPermission()
+            }
+        }
+    }
+
+    private fun mostrarBolha() {
+        val valorStr = etValor.text.toString()
+        val kmStr = etKm.text.toString()
+
+        if (valorStr.isEmpty() || kmStr.isEmpty()) {
+            Toast.makeText(this, "Preencha valor e km", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val intent = Intent(this, BolhaService::class.java)
+        intent.putExtra("valor", valorStr)
+        intent.putExtra("km", kmStr)
+        startService(intent)
+    }
+
+    private fun checkOverlayPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Settings.canDrawOverlays(this)
+        } else {
+            true
+        }
+    }
+
+    private fun requestOverlayPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName")
+            )
+            startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == OVERLAY_PERMISSION_REQUEST_CODE) {
+            if (checkOverlayPermission()) {
+                mostrarBolha()
+            } else {
+                Toast.makeText(this, "Permissão negada", Toast.LENGTH_SHORT).show()
             }
         }
     }

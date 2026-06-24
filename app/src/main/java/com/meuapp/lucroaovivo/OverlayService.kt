@@ -41,7 +41,6 @@ class BolhaService : Service() {
         val tvResultado = bubbleView.findViewById<TextView>(R.id.tvResultadoBolha)
         tvResultado.text = "R$ %.2f /km".format(lucroKm)
         
-        // Verde se >= 2.00, Vermelho se < 1.00, Amarelo no meio
         when {
             lucroKm >= 2.0 -> tvResultado.setBackgroundColor(android.graphics.Color.parseColor("#4CAF50"))
             lucroKm < 1.0 -> tvResultado.setBackgroundColor(android.graphics.Color.parseColor("#F44336"))
@@ -65,7 +64,6 @@ class BolhaService : Service() {
         
         windowManager.addView(bubbleView, params)
         
-        // Fecha sozinho depois de 5 segundos
         handler.postDelayed({
             stopSelf()
         }, 5000)

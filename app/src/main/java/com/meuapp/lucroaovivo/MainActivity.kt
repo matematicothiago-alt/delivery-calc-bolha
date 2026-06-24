@@ -27,16 +27,16 @@ class MainActivity : AppCompatActivity() {
         }
         
         val tvTitulo = TextView(this).apply { 
-            text = "LucroAoVivo"
+            text = "LucroAoVivo - Entregas"
             textSize = 24f
             setPadding(0, 0, 0, 32)
         }
         
         val etValor = EditText(this).apply { 
-            hint = "Valor da corrida R$"
+            hint = "Valor da entrega R$"
             inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
         }
-        val etKmEstabelecimento = EditText(this).apply { 
+        val etKmAteEstabelecimento = EditText(this).apply { 
             hint = "Km: você até o estabelecimento"
             inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
         }
@@ -44,17 +44,12 @@ class MainActivity : AppCompatActivity() {
             hint = "Km: estabelecimento até cliente"
             inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
         }
-        val etKmViagem = EditText(this).apply { 
-            hint = "Km: viagem com cliente"
-            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-        }
-        val btn = Button(this).apply { text = "CALCULAR E ATIVAR BOLHA" }
+        val btn = Button(this).apply { text = "ATIVAR BOLHA" }
         
         layout.addView(tvTitulo)
         layout.addView(etValor)
-        layout.addView(etKmEstabelecimento)
+        layout.addView(etKmAteEstabelecimento)
         layout.addView(etKmAteCliente)
-        layout.addView(etKmViagem)
         layout.addView(btn)
         setContentView(layout)
         
@@ -72,17 +67,16 @@ class MainActivity : AppCompatActivity() {
             }
             
             val valor = etValor.text.toString().toDoubleOrNull() ?: 0.0
-            val kmEstabelecimento = etKmEstabelecimento.text.toString().toDoubleOrNull() ?: 0.0
+            val kmAteEstabelecimento = etKmAteEstabelecimento.text.toString().toDoubleOrNull() ?: 0.0
             val kmAteCliente = etKmAteCliente.text.toString().toDoubleOrNull() ?: 0.0
-            val kmViagem = etKmViagem.text.toString().toDoubleOrNull() ?: 0.0
             
             if (valor == 0.0) {
-                Toast.makeText(this, "Preenche o valor da corrida", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Preenche o valor da entrega", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             
-            val custoKm = 0.35 // teu custo por km - muda aqui
-            val kmTotal = kmEstabelecimento + kmAteCliente + kmViagem
+            val custoKm = 0.35 // muda teu custo por km aqui
+            val kmTotal = kmAteEstabelecimento + kmAteCliente
             val lucro = valor - (kmTotal * custoKm)
             val deuLucro = lucro >= 0
             
@@ -95,8 +89,6 @@ class MainActivity : AppCompatActivity() {
             } else {
                 startService(intent)
             }
-            
-            Toast.makeText(this, "Bolha ativada!", Toast.LENGTH_SHORT).show()
         }
     }
 }

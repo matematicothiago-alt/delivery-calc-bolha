@@ -12,6 +12,7 @@ class OverlayService: Service() {
     lateinit var wm: WindowManager
     lateinit var view: LinearLayout
     lateinit var tvLucro: TextView
+    var params: WindowManager.LayoutParams? = null
     
     override fun onCreate() {
         super.onCreate()
@@ -22,7 +23,7 @@ class OverlayService: Service() {
         
         val notification = Notification.Builder(this, "lucro")
             .setContentTitle("LucroAoVivo ativo")
-            .setContentText("Calculando corridas")
+            .setContentText("Calculando entregas")
             .setSmallIcon(android.R.drawable.ic_menu_info_details)
             .setOngoing(true)
             .build()
@@ -30,6 +31,7 @@ class OverlayService: Service() {
         startForeground(1, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
         
         if (!Settings.canDrawOverlays(this)) {
+            Toast.makeText(this, "Sem permissão de overlay", Toast.LENGTH_LONG).show()
             stopSelf()
             return
         }
@@ -38,42 +40,46 @@ class OverlayService: Service() {
         
         view = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(0xFF00AA00.toInt()) // Verde padrão
-            setPadding(24, 16, 24, 16)
+            setBackgroundColor(0xFF00AA00.toInt())
+            setPadding(32, 20, 32, 20)
             
             tvLucro = TextView(context).apply {
                 text = "Lucro: R$ 0.00"
                 setTextColor(0xFFFFFFFF.toInt())
-                textSize = 20f
+                textSize = 22f
             }
             addView(tvLucro)
             
             val btn = Button(context).apply {
-                text = "X"
+                text = "FECHAR"
                 setOnClickListener { stopSelf() }
             }
             addView(btn)
         }
         
-        val params = WindowManager.LayoutParams(
+        params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
-        )
-        params.gravity = Gravity.TOP or Gravity.START
-        params.x = 50
-        params.y = 200
+        ).apply {
+            gravity = Gravity.TOP or Gravity.START
+            x = 50
+            y = 200
+        }
         
         view.setOnTouchListener(object: View.OnTouchListener {
-            var x = 0; var y = 0; var tx = 0f; var ty = 0f
+            var initialX = 0; var initialY = 0; var touchX = 0f; var touchY = 0f
             override fun onTouch(v: View, e: MotionEvent): Boolean {
                 when(e.action) {
-                    MotionEvent.ACTION_DOWN -> { x = params.x; y = params.y; tx = e.rawX; ty = e.rawY }
+                    MotionEvent.ACTION_DOWN -> { 
+                        initialX = params!!.x; initialY = params!!.y
+                        touchX = e.rawX; touchY = e.rawY 
+                    }
                     MotionEvent.ACTION_MOVE -> { 
-                        params.x = x + (e.rawX - tx).toInt()
-                        params.y = y + (e.rawY - ty).toInt()
+                        params!!.x = initialX + (e.rawX - touchX).toInt()
+                        params!!.y = initialY + (e.rawY - touchY).toInt()
                         wm.updateViewLayout(view, params)
                     }
                 }
@@ -82,6 +88,7 @@ class OverlayService: Service() {
         })
         
         wm.addView(view, params)
+        Toast.makeText(this, "BOLHA CRIADA", Toast.LENGTH_SHORT).show()
     }
     
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -90,7 +97,6 @@ class OverlayService: Service() {
         
         tvLucro.text = "Lucro: R$ $lucroStr"
         
-        // Muda cor: Verde se lucro, Vermelho se prejuízo
         if (deuLucro) {
             view.setBackgroundColor(0xFF00AA00.toInt()) // Verde
         } else {
@@ -101,7 +107,9 @@ class OverlayService: Service() {
     }
     
     override fun onDestroy() {
-        try { wm.removeView(view) } catch(e: Exception) {}
+        try { 
+            if (::view.isInitialized) wm.removeView(view) 
+        } catch(e: Exception) {}
         super.onDestroy()
     }
     

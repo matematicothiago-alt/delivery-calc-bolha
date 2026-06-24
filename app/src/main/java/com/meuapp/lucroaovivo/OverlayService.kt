@@ -11,11 +11,11 @@ import android.widget.*
 class OverlayService: Service() {
     lateinit var wm: WindowManager
     lateinit var view: View
+    lateinit var tvLucro: TextView
     
     override fun onCreate() {
         super.onCreate()
         
-        // 1. Android 16: Notificação obrigatória antes de tudo
         val ch = NotificationChannel("lucro", "LucroAoVivo", NotificationManager.IMPORTANCE_LOW)
         ch.setShowBadge(false)
         getSystemService(NotificationManager::class.java).createNotificationChannel(ch)
@@ -29,27 +29,25 @@ class OverlayService: Service() {
         
         startForeground(1, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
         
-        // 2. Verifica se tem permissão de overlay - Android 16 barra se não tiver
         if (!Settings.canDrawOverlays(this)) {
             Toast.makeText(this, "Libera 'Exibir sobre outros apps' nas configs", Toast.LENGTH_LONG).show()
             stopSelf()
             return
         }
         
-        // 3. Cria a bolha
         wm = getSystemService(WINDOW_SERVICE) as WindowManager
         
         view = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(0xFF00AA00.toInt()) // Verde
+            setBackgroundColor(0xFF00AA00.toInt())
             setPadding(24, 16, 24, 16)
             
-            val tv = TextView(context).apply {
+            tvLucro = TextView(context).apply {
                 text = "Lucro: R$ 0.00"
                 setTextColor(0xFFFFFFFF.toInt())
                 textSize = 18f
             }
-            addView(tv)
+            addView(tvLucro)
             
             val btn = Button(context).apply {
                 text = "X"
@@ -69,7 +67,6 @@ class OverlayService: Service() {
         params.x = 50
         params.y = 200
         
-        // Arrastar a bolha
         view.setOnTouchListener(object: View.OnTouchListener {
             var x = 0; var y = 0; var tx = 0f; var ty = 0f
             override fun onTouch(v: View, e: MotionEvent): Boolean {
@@ -86,7 +83,12 @@ class OverlayService: Service() {
         })
         
         wm.addView(view, params)
-        Toast.makeText(this, "BOLHA ATIVA NO ANDROID 16!", Toast.LENGTH_SHORT).show()
+    }
+    
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val lucro = intent?.getStringExtra("lucro") ?: "Lucro: R$ 0.00"
+        tvLucro.text = lucro
+        return START_STICKY
     }
     
     override fun onDestroy() {

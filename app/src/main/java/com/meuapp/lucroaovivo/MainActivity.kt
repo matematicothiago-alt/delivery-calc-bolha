@@ -1,28 +1,39 @@
 package com.meuapp.lucroaovivo
 
+import android.Manifest
 import android.content.Intent
-import android.os.Bundle
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
-import com.meuapp.lucroaovivo.R
-import android.widget.*
-
-data class Corrida(val valor: Double, val km: Double) // <- adiciona isso
+import android.os.Bundle
+import android.widget.Button
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        val etValor = findViewById<EditText>(R.id.etValor)
-        val btnBolha = findViewById<Button>(R.id.btnAtivarBolha)
-
-        btnBolha.setOnClickListener {
-            val valor = etValor.text.toString().toDoubleOrNull() ?: 0.0
-            val corrida = Corrida(valor, 0.0) // <- linha 27 ok agora
-            
-            val intent = Intent(this, MainActivity::class.java)
-            intent.putExtra("valor", corrida.valor.toString()) // <- linha 31 força String
-            startActivity(intent)
+        
+        val btn = Button(this)
+        btn.text = "TESTAR SERVIÇO"
+        setContentView(btn)
+        
+        // Android 16 pede notificação na hora
+        if (Build.VERSION.SDK_INT >= 33) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
+            }
+        }
+        
+        btn.setOnClickListener {
+            val intent = Intent(this, OverlayService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent)
+            } else {
+                startService(intent)
+            }
+            Toast.makeText(this, "Clicou no botão", Toast.LENGTH_SHORT).show()
         }
     }
 }

@@ -10,7 +10,7 @@ import android.widget.*
 
 class OverlayService: Service() {
     lateinit var wm: WindowManager
-    lateinit var view: View
+    lateinit var view: LinearLayout
     lateinit var tvLucro: TextView
     
     override fun onCreate() {
@@ -22,7 +22,7 @@ class OverlayService: Service() {
         
         val notification = Notification.Builder(this, "lucro")
             .setContentTitle("LucroAoVivo ativo")
-            .setContentText("Bolha rodando")
+            .setContentText("Calculando corridas")
             .setSmallIcon(android.R.drawable.ic_menu_info_details)
             .setOngoing(true)
             .build()
@@ -30,7 +30,6 @@ class OverlayService: Service() {
         startForeground(1, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
         
         if (!Settings.canDrawOverlays(this)) {
-            Toast.makeText(this, "Libera 'Exibir sobre outros apps' nas configs", Toast.LENGTH_LONG).show()
             stopSelf()
             return
         }
@@ -39,13 +38,13 @@ class OverlayService: Service() {
         
         view = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(0xFF00AA00.toInt())
+            setBackgroundColor(0xFF00AA00.toInt()) // Verde padrão
             setPadding(24, 16, 24, 16)
             
             tvLucro = TextView(context).apply {
                 text = "Lucro: R$ 0.00"
                 setTextColor(0xFFFFFFFF.toInt())
-                textSize = 18f
+                textSize = 20f
             }
             addView(tvLucro)
             
@@ -86,8 +85,18 @@ class OverlayService: Service() {
     }
     
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val lucro = intent?.getStringExtra("lucro") ?: "Lucro: R$ 0.00"
-        tvLucro.text = lucro
+        val lucroStr = intent?.getStringExtra("lucro") ?: "0.00"
+        val deuLucro = intent?.getBooleanExtra("deuLucro", true) ?: true
+        
+        tvLucro.text = "Lucro: R$ $lucroStr"
+        
+        // Muda cor: Verde se lucro, Vermelho se prejuízo
+        if (deuLucro) {
+            view.setBackgroundColor(0xFF00AA00.toInt()) // Verde
+        } else {
+            view.setBackgroundColor(0xFFAA0000.toInt()) // Vermelho
+        }
+        
         return START_STICKY
     }
     

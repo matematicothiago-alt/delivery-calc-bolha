@@ -3,38 +3,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="24dp">
+    android:padding="24dp"
+    android:gravity="center">
 
     <EditText
         android:id="@+id/etValor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Valor da corrida R$"
-        android:inputType="numberDecimal" />
+        android:inputType="numberDecimal"
+        android:layout_marginBottom="16dp" />
 
     <EditText
-        android:id="@+id/etKmAteCliente"
+        android:id="@+id/etKm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Km até cliente"
+        android:hint="KM rodados"
         android:inputType="numberDecimal"
-        android:layout_marginTop="16dp" />
+        android:layout_marginBottom="24dp" />
 
     <Button
-        android:id="@+id/btnAtivarBolha"
+        android:id="@+id/btnCalcular"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="ATIVAR BOLHA"
-        android:layout_marginTop="24dp" />
-
-    <TextView
-        android:id="@+id/tvLucroKm"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="R$ 0.00 /km"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginTop="24dp" />
+        android:text="CALCULAR LUCRO/KM" />
 
 </LinearLayout>

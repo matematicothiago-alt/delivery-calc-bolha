@@ -27,10 +27,14 @@
         android:text="ATIVAR BOLHA"
         android:layout_marginTop="24dp" />
 
-    <Button
-        android:id="@+id/btnAcessibilidade"
+    <TextView
+        android:id="@+id/tvLucroKm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="ABRIR ACESSIBILIDADE"
-        android:layout_marginTop="8dp" />
+        android:text="R$ 0.00 /km"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginTop="24dp" />
+
 </LinearLayout>

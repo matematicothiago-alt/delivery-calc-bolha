@@ -1,64 +1,61 @@
 package com.meuapp.lucroaovivo
 
-import android.Manifest
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import android.widget.Button
 import android.widget.EditText
-import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.meuapp.lucroaovivo.R
+
+data class Corrida(
+    val valor: Double,
+    val kmAteCliente: Double
+)
 
 class MainActivity : AppCompatActivity() {
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(32, 32, 32, 32)
-        }
-        
-        val etValor = EditText(this).apply { hint = "Valor: R$ 15.50" }
-        val etKmAte = EditText(this).apply { hint = "KM até cliente: 2.5" }
-        val etKmTotal = EditText(this).apply { hint = "KM viagem: 8.0" }
-        val btn = Button(this).apply { text = "CALCULAR E MOSTRAR BOLHA" }
-        
-        layout.addView(etValor); layout.addView(etKmAte); layout.addView(etKmTotal); layout.addView(btn)
-        setContentView(layout)
-        
-        if (Build.VERSION.SDK_INT >= 33) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
-            }
-        }
-        
-        btn.setOnClickListener {
-            if (!Settings.canDrawOverlays(this)) {
-                Toast.makeText(this, "Libera overlay primeiro", Toast.LENGTH_LONG).show()
-                startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")))
+        setContentView(R.layout.activity_main)
+
+        val etValor = findViewById<EditText>(R.id.etValor)
+        val etKmAteCliente = findViewById<EditText>(R.id.etKmAteCliente)
+        val tvLucroKm = findViewById<TextView>(R.id.tvLucroKm)
+        val btnAtivarBolha = findViewById<Button>(R.id.btnAtivarBolha)
+
+        btnAtivarBolha.setOnClickListener {
+            // Mostra um Toast pra provar que o botão funciona
+            Toast.makeText(this, "Botão clicado!", Toast.LENGTH_SHORT).show()
+            
+            val valorStr = etValor.text.toString()
+            val kmStr = etKmAteCliente.text.toString()
+            
+            // Se tiver vazio, avisa
+            if (valorStr.isEmpty() || kmStr.isEmpty()) {
+                tvLucroKm.text = "Preenche valor e km"
                 return@setOnClickListener
             }
             
-            val valor = etValor.text.toString().toDoubleOrNull() ?: 0.0
-            val kmAte = etKmAte.text.toString().toDoubleOrNull() ?: 0.0
-            val kmTotal = etKmTotal.text.toString().toDoubleOrNull() ?: 0.0
+            val valor = valorStr.toDoubleOrNull() ?: 0.0
+            val km = kmStr.toDoubleOrNull() ?: 0.0
             
-            val custoKm = 0.35 // teu custo por km
-            val lucro = valor - ((kmTotal + kmAte) * custoKm)
+            if (km == 0.0) {
+                tvLucroKm.text = "Km não pode ser zero"
+                return@setOnClickListener
+            }
             
-            val intent = Intent(this, OverlayService::class.java)
-            intent.putExtra("lucro", "Lucro: R$ ${"%.2f".format(lucro)}")
+            val lucroKm = valor / km
+            val corrida = Corrida(valor, km)
             
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(intent)
+            // MOSTRA O RESULTADO NA TELA
+            tvLucroKm.text = "R$ %.2f /km".format(lucroKm)
+            
+            // Muda cor: verde se > 2.00, vermelho se < 1.00
+            if (lucroKm >= 2.0) {
+                tvLucroKm.setTextColor(android.graphics.Color.GREEN)
             } else {
-                startService(intent)
+                tvLucroKm.setTextColor(android.graphics.Color.RED)
             }
         }
     }

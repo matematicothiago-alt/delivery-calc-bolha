@@ -2,8 +2,8 @@
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:accessibilityEventTypes="typeWindowContentChanged|typeWindowStateChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
-    android:accessibilityFlags="flagDefault|flagIncludeNotImportantViews|flagReportViewIds"
+    android:accessibilityFlags="flagReportViewIds|flagRetrieveInteractiveWindows"
     android:canRetrieveWindowContent="true"
     android:description="@string/app_name"
-    android:packageNames="com.ubercab.eats.driver"
-    android:notificationTimeout="100" />
+    android:notificationTimeout="100"
+    android:packageNames="com.ubercab.eats,br.com.beetech.deliveryman,com.taxis99" />
